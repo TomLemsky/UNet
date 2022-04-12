@@ -26,14 +26,11 @@ class UNet(nn.Module):
         if featuresizes is None:
             featuresizes = [64,128,256,512,1024]
 
-        # with normal lists, weights aren't registered
+        # with normal Python lists, weights wouldn't be registered
         self.contracting_path = nn.ModuleList([])
         self.expansive_path   = nn.ModuleList([])
         self.up_convs         = nn.ModuleList([])
 
-        featuresizes_with_input = [in_channels] + featuresizes
-        previous_channels = in_channels
-        #for previous, current in zip(featuresizes_with_input[:-1],featuresizes_with_input[1:]):
         for i in range(len(featuresizes)):
             current = featuresizes[i]
             # the first feature dimension is the input channel dimension
@@ -42,7 +39,6 @@ class UNet(nn.Module):
             else:
                 previous = in_channels
 
-            print("Contract: ",previous, current)
             # contracting_path
             conv_1 = get_convblock(previous,current,kernel_size=3)
             conv_2 = get_convblock(current ,current,kernel_size=3)
@@ -50,14 +46,11 @@ class UNet(nn.Module):
             self.contracting_path.append(combined_block)
 
         # same loop in reverse (without input channels)
-
-        #for previous, current in zip(featuresizes[:0:-1],featuresizes[-2::-1]):
         for i in range(1,len(featuresizes))[::-1]:
             # previous is now the larger filter size, since we are upscaling the image on the expansive_path
             previous = featuresizes[i]
             # because the expansive_path goes reverse to the contracting_path
             current  = featuresizes[i-1]
-            print("Expand: ",previous, current)
             # contracting_path
             upconv = make_up_conv(previous,current)
             self.up_convs.append(upconv)
