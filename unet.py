@@ -11,9 +11,10 @@ def get_convblock(in_channels, out_channels, kernel_size=3, padding=1, stride=1,
         layers = [conv, activation_function(inplace=True)]
     return nn.Sequential(*layers)
 
-def make_up_conv(in_channels,out_channels, kernel_size=2): #, padding=1):
-    upscale = nn.Upsample(scale_factor=2, mode='nearest') #bilinear
-    zeropad = nn.ZeroPad2d((0,1,0,1)) # pad only right and bottom to keep dimension after 2x2 conv
+def make_up_conv(in_channels,out_channels, kernel_size=2):
+    upscale = nn.Upsample(scale_factor=2, mode='bilinear')
+     # pad only right and bottom to keep dimension after 2x2 conv
+    zeropad = nn.ZeroPad2d((0,1,0,1))
     conv = nn.Conv2d(in_channels,out_channels,kernel_size=kernel_size,padding=0)
     return nn.Sequential(upscale, zeropad, conv)
 
